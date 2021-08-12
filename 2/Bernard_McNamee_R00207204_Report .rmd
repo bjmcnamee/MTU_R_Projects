@@ -1,0 +1,249 @@
+---
+title: "STAT8010 Assignment #2"
+author: "Bernard McNamee"
+date: "05/01/2021"
+output: html_document
+---
+
+```{r setup, echo=FALSE, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(xlsx)
+library(kableExtra) # used here to format tables, eg highlight column with yellow background, 
+library(gridExtra) # 
+library(tidyverse)
+```
+Answers to questions on various topics - 1 & 2 (Shiny app - see separate R file) and 3, 4 and 5 (Monte Carlo simulations)
+\
+\
+\
+\
+**Q3. Using Monte Carlo simulations, you should attempt to predict tconc for the year 2015. This should be done using at least two different models (i.e. different collections of variables or prediction values). You should clearly state which performs best.**
+```{r include=FALSE}
+setwd("/home/barnyard/rstudio/scripts/college/Intro_R/Ass2")
+df <- read.csv("process_sim.csv", header=TRUE) # read data file into dataframe 'df'
+str(df)
+round(sum(is.na(df$tconc))/sum(!is.na(df$tconc))*100,4) # remove NA values from tconc
+df <- na.omit(df)
+# check correlations of numeric varaibles
+round(cor(df[-10], use = "c"),1)
+# fit model to predict tconc, with all numeric variables
+summary(lm(tconc~Ph+TEMP+PRES+undesP+udt+pdt+year+month+day+hour, data = df))
+# simplified model with just Year as the only time variable
+summary(lm(tconc~Ph+TEMP+PRES+undesP+udt+pdt+year, data = df))
+```
+The csv data file is read into a R dataframe using base R. The structure is checked and it is noted there is 1. factor variable feed, 2. observation number No, and 3. NA values in tconc. Correlations between variables are checked. A linear regression summary (all variables) shows all p values < 0.05 so all variables are significant, however, the Multiple R squared value is very low indicating a weak relationship between tconc and the variables. A second linear regression summary (excluding time variables bar year) shows again all p values < 0.05, and again the Multiple R squared value is very low (but not much lower without dropped time variables).
+\
+\
+```{r echo=FALSE}
+# store model coefficients in object
+model <- (summary(lm(tconc~Ph+TEMP+PRES+undesP+udt+pdt+year, data = df))$coeff)
+# use median absolute deviation instead of sd to avoid outliers
+disp <- mad(summary(lm(tconc~Ph+TEMP+PRES+undesP+udt+pdt+year, data = df))$resid)
+#index of last datapoint
+last <- nrow(df)
+# get last year
+# unique(df$year)
+# number of rows in one year (2014)
+nyear <- sum(df$year==2014)
+#set up simulation using model coefficients, where we simulate using the last data point
+simA <- NULL
+for(i in 1:nyear){
+  simA=cbind(simA, model[1] + model[2]*df$Ph[last]+ 
+               model[3]*df$TEMP[last] + model[4]*df$PRES[last]+
+               model[5]*df$undesP[last]+ model[6]*df$udt[last]+
+               model[7]*df$pdt[last] + 
+               model[8]*2015 +  #index year forward to desired prediction date
+               rnorm(1,0, disp)) #simulate residuals from normal distribution
+}
+```
+Some simulation setup steps follow; model coefficients (variable coefficients) are calculated and saved; median absolute deviation (instead of sd to avoid outliers) calculated and saved; last row of the main dataframe (simulation starting point) is calculated and saved; number of rows in one year is calculated and saved. Simulation A is run and tconc plotted alongside existing data (for all years and for last year).
+\
+\
+```{r echo=FALSE}
+# compare with existing variable
+max <- max(df$tconc, na.rm = TRUE)
+min <- min(df$tconc, na.rm = TRUE)
+par(mfrow=c(1,3))
+plot(df$tconc, col="green")
+#plot of simulated data
+plot(simA[1,],  ylim = c(min,max), xlim = c(0,length(df$tconc)), col="red")
+#create dataset with just last years data
+library(dplyr)
+df2014 <- df %>% filter(year==2014)
+# plots showing last years tconc
+plot(df2014$tconc,  ylim = c(min,max), xlim = c(0,length(df$tconc)), col="green")
+```
+\
+\
+A new simulation B is generated using 2014 variable means instead of the last value. Simulation B tconc is plotted alongside existing data (for last year). Unfortunately, the output result appears no better than Simulation A.
+\
+\
+```{r echo=FALSE}
+# new simulation using 2014 variable means instead of the last value
+simB <- NULL
+for(i in 1:nyear){
+  simB = cbind (simB, model[1] + model[2]*mean(df2014$Ph) + model[3]*mean(df2014$TEMP) + 
+               model[4]*mean(df2014$PRES) + model[5]*mean(df2014$undesP) + 
+               model[6]*mean(df2014$udt) + model[7]*mean(df2014$pdt) + model[8]*2015 +  #index year forward to desired prediction date
+               rnorm(1,0, disp)) #simulate residuals from normal distribution
+}
+
+par(mfrow=c(1,3))
+# plot new sim
+plot(simB[1,],  ylim = c(min,max), xlim = c(0,length(df$tconc)), col="red")
+# no difference
+plot(df2014$tconc,  ylim = c(min,max), xlim = c(0,length(df$tconc)), col="green")
+```
+\
+\
+A new simulation C is generated using all data from 2014 instead of means / last value. Simulation C tconc is plotted alongside existing data (for last year). Unfortunately, the output result appears no better than Simulation A and B.
+\
+\
+```{r echo=FALSE}
+# using all last years data for all independent variables
+simC <- NULL
+for(i in 1:nyear){
+  simC = cbind (simC, model[1] + model[2]*df2014$Ph[i] + model[3]*df2014$TEMP[i] + 
+                  model[4]*df2014$PRES[i] + model[5]*df2014$undesP[i] + 
+                  model[6]*df2014$udt[i] + model[7]*df2014$pdt[i] + model[8]*2015 +  #index year forward to desired prediction date
+                  rnorm(1,0, disp)) #simulate residuals from normal distribution
+}
+
+par(mfrow=c(1,3))
+plot(simC[1,],  ylim = c(min,max), xlim = c(0,length(df$tconc)), col="red")
+# plots showing last years tconc
+plot(df2014$tconc,  ylim = c(min,max), xlim = c(0,length(df$tconc)), col="green")
+```
+\
+**Conclusions**
+\
+Though weak, there exists a correlation between the simulated data and data from the last year but successive attempts at refining the simulation algorithm did not improve the output result. Even the NA values in the simulated variable were removed and the experiment repeated - no improvement. Although the p values were all much lower than 5%, the Multiple R squared value is very low indicating the relationship between tconc and the dependent variables is weak - not a good starting point. I would have expected Simulation B to give a better result if outliers existed in the starting point values used in Simulation A. And at the very least I would have expected Simulation C to give a better result as it used all values in 2014 for all variables in the simulation algorithm instead of single values (mean/last).
+\
+\
+\
+\
+**Q4. Consider a machine that inserts a needle into test tubes on a conveyer for sampling in a factory process. This machine may become misaligned in the 2 dimensions of the plane of conveyer travel (x and y axes) independently. The machine is realigned to centre at the start of each day and it then samples 200 test tubes throughout the day. The machine fails to sample correctly if it is misaligned in any direction by 2cm or more, as it misses the test tube (possibly colliding with the glass). The x misalignment is 0.1mm on average in the direction of conveyor travel (positive x-direction) for each test, but that this can vary somewhat with a standard deviation of 0.1mm. Similarly, the y misalignment is biased in the negative y-direction, and is much smaller on average; the engineers believe that the average misalignment in the negative y direction is 0.05mm per test, with a standard deviation of 0.05mm.** 
+\
+\
+**a. Simulate the distribution of misalignments at the end of the day**
+\
+\
+As the number of trials increases, the distribution becomes normal as shown below.
+\
+\
+```{r echo=FALSE}
+library(ggplot2)
+library(gridExtra)
+set.seed(2021-01-02)
+
+generate_trial_run_histograms <- function(trials){
+  zmc <- rep(NA,trials)
+  for(j in 1:trials){
+      x <- 0; y <- 0; z <- 0
+      for(i in 1:200){
+          x <- x + rnorm(1,0.1,0.1)
+          y <- y + rnorm(1,0.05,0.05)
+          z <- round(sqrt(x**2 + y**2),4)
+        }
+      zmc[j] <- z
+    }
+  
+  df <- data.frame(zmc)
+  p <- ggplot(df,aes(zmc)) + geom_histogram(binwidth=0.3) + ggtitle(paste(trials,"trials : Outcomes Distribution")) + theme(plot.title = element_text(size = 10, face = "bold")) + xlab("Cumulative Misalignment")
+  return(p)
+}
+
+p <- lapply(c("10","100","1000","10000"), generate_trial_run_histograms)
+do.call(grid.arrange, c(p))
+
+```
+\
+\
+\
+\
+**b. Estimate the likelihood of failure throughout the day**
+\
+\
+```{r echo=FALSE}
+generate_trial_sample_data <- function(trials){
+  zmc <- rep(NA,200); sample <- rep(NA,200); dfmany <- data.frame()
+  for(j in 1:trials){
+    x <- 0; y <- 0; z <- 0;
+    for(i in 1:200){
+          x <- x + rnorm(1,0.1,0.1)
+          y <- y + rnorm(1,0.05,0.05)
+          z <- round(sqrt(x**2 + y**2),4)
+          zmc[i] <- z
+          sample[i] <- i
+          }
+      df <- data.frame(sample,zmc,prob=zmc/20)
+      dfmany <- rbind(dfmany,df)
+      }
+return(dfmany)
+}
+
+df <- generate_trial_sample_data(1000)
+
+ggplot(df,aes(sample,zmc)) + geom_line(aes(color = ifelse(zmc<20,'green','red'))) + scale_colour_manual(labels = c("< 20mm", "> 20mm"), values=c('green','red')) + labs(color = "Threshold") + labs(x="Samples", y="Misalignment") + ggtitle("Samples v Misalignment") + geom_hline(yintercept=20,linetype="dashed") + annotate("text", x=40, y=21, label="Max misalignment, 2cm (20mm)", color = "blue")
+
+fail_rate <- 100 - round(length(df[df$sample == 200 & df$zmc < 20,"sample"]) / length(df[df$sample == 200 & df$zmc > 20,"sample"]) * 100,4)
+
+print(paste("Sum of relative frequencies for large number trial method : Probability of cumulative misalignments > 2cm (threshold value) at end of a batch of 200 samples is",fail_rate,"%"))
+
+```
+\
+\
+**c. Visualise the simulated alignments of the machine at the end of the day on a scatterplot, showing the 2cm limit.**
+\
+\
+```{r echo=FALSE}
+generate_trial_run_data <- function(trials){
+  zmc <- vector(); run <- vector()
+  for(j in 1:trials){
+    x <- 0; y <- 0; z <- 0;
+    for(i in 1:200){
+      x <- x + rnorm(1,0.1,0.1)
+      y <- y + rnorm(1,0.05,0.05)
+      z <- round(sqrt(x**2 + y**2),4)
+    }
+    zmc[j] <- z
+    run[j] <- j
+    df <- data.frame(run,zmc)
+    }
+  return(df)
+}
+
+df <- generate_trial_run_data(10000)
+
+ggplot(df,aes(run,zmc)) + geom_point(aes(color = ifelse(zmc<20,'green','red'))) + scale_colour_manual(labels = c("< 20mm", "> 20mm"), values=c('green','red')) + labs(color = "Threshold") + labs(x="Runs", y="Misalignment") + ggtitle("Runs v Misalignment") + geom_hline(yintercept=20,linetype="dashed")  + annotate("text", x=2500, y=19.7, label="Max misalignment, 2cm", color = "blue")
+
+```
+\
+\
+**Q5. It costs 50,000 when the machine goes offline due to excessive misalignment and no further batches can be tested for the reminder of the day. Each batch passed through the machine results in gross profit of 400. If a batch is ready for testing but the machine is offline, there is a 500 cost for storage and alternate testing of each untested batch under the target number of tests per day. Given these, use Monte Carlo simulations to find the best strategy - i.e. what is the optimal target number of runs per day before realignment should be done.**
+\
+\
+An out of order sign would be more appropriate - the machine needs to be replaced or repaired. The current batch success rate is so low as to not be worthwhile doing even one batch and risking the offline daily fixed charge for a relatively low return. 
+\
+\
+Instead, it may be more meaningful to look at reducing the number of samples to a level that will guarantee a batch can complete (see 1% v 5% margin analyses below) before realigning the machine between runs.
+\
+\
+```{r echo=FALSE}
+min_nr <- 50000/400
+new_success_rate <- 100 - 100/min_nr
+success_rate <- 100 - fail_rate
+improvement <- new_success_rate/success_rate
+df <- generate_trial_sample_data(1000)
+threshold1 <- 0.99 * 20
+threshold2 <- 0.95 * 20
+maxsample1 <- min(subset(df, df$zmc >= threshold1,select=sample))
+maxsample2 <- min(subset(df, df$zmc >= threshold2,select=sample))
+
+ggplot(df,aes(sample,zmc)) + geom_line(aes(color = ifelse(zmc<20,'green','red'))) + scale_colour_manual(labels = c("< 20mm", "> 20mm"), values=c('green','red')) + labs(color = "Threshold") + labs(x="Samples", y="Misalignment") + ggtitle("Samples v Misalignment") + geom_hline(yintercept=20,linetype="dashed") + geom_vline(xintercept=maxsample1,linetype="dashed") + annotate("text", x=40, y=21, label="Max misalignment, 2cm", color = "blue") + geom_vline(xintercept=maxsample2,linetype="dashed") + annotate("text", x=100, y=15, label=paste(maxsample2,"samples - 5%"), color = "blue")  + annotate("text", x=150, y=17, label=paste(maxsample1,"samples - 1%"), color = "blue") 
+
+```
+\
+\
+
+
