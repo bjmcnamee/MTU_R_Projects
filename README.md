@@ -1,4 +1,4 @@
-# R Assignments
+## Assignments for Data Science R course
 ![MTU Logo](/1/data/MTU_Logo.jpg)
 
 
