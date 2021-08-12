@@ -1,5 +1,5 @@
 # R Assignments
-![MTU Logo](/data/MTU_Logo.jpg)
+![MTU Logo](/1/data/MTU_Logo.jpg)
 
 
 #### Assignment 1 : ETL and analysis using Pandas and text-based menu for user interactions on Auto Dataset.
