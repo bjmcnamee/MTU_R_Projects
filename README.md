@@ -2,7 +2,7 @@
 ![MTU Logo](/1/data/MTU_Logo.jpg)
 
 
-#### Assignment 1 : ETL and analysis using dataframes on Person's Health Dataset.
+#### Project 1 : ETL and analysis using dataframes on Person's Health Dataset.
 
 <li><a href="https://github.com/bjmcnamee/R_ETL_MTU_Assignments/blob/main/1/STAT8010%20Assignement%201%202020%20(HDip).pdf">Project Specification</a></li>
 <li><a href="https://github.com/bjmcnamee/R_ETL_MTU_Assignments/blob/main/1/data/assignment1.xlsx">Dataset</a></li>
@@ -11,7 +11,7 @@
 
 #### 
 #### 
-#### Assignment 2 : 
+#### Project 2 : 
 - Build Shiny app dashboard to display range of plots for any combination of variables of the Pharam Process Dataset
 - Fit LR to plot
 - Apply two Monte Carlo simulation models to predict variable tconc for variable year 2015
