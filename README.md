@@ -9,9 +9,7 @@
 <li><a href="https://github.com/bjmcnamee/R_ETL_MTU_Assignments/blob/main/1/Bernard_McNamee_R00207204.R">Project Code</a></li>
 <li><a href="https://github.com/bjmcnamee/R_ETL_MTU_Assignments/blob/main/1/Bernard_McNamee_R00207204%20.rmd">R Markdown Code</a></li>
 
-#### 
-#### 
-#### Project 2 : 
+#### Project 2 : Build Shiny app dashboard to display range of plots + Apply Monte Carlo simulation models
 - Build Shiny app dashboard to display range of plots for any combination of variables of the Pharam Process Dataset
 - Fit LR to plot
 - Apply two Monte Carlo simulation models to predict variable tconc for variable year 2015
