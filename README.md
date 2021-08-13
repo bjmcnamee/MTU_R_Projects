@@ -1,4 +1,4 @@
-## Data Science Assignments : R Programming
+## R Data Science Projects
 ![MTU Logo](/1/data/MTU_Logo.jpg)
 
 
