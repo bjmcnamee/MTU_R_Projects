@@ -8,6 +8,7 @@
 <li><a href="https://github.com/bjmcnamee/R_ETL_MTU_Assignments/blob/main/1/data/assignment1.xlsx">Dataset</a></li>
 <li><a href="https://github.com/bjmcnamee/R_ETL_MTU_Assignments/blob/main/1/Bernard_McNamee_R00207204.R">Project Code</a></li>
 <li><a href="https://github.com/bjmcnamee/R_ETL_MTU_Assignments/blob/main/1/Bernard_McNamee_R00207204%20.rmd">R Markdown Code</a></li>
+<li><a href="https://github.com/bjmcnamee/MTU_R_Projects/blob/main/1/R00207204%20ass1_report.html">Report</a></li>
 <br><br>
 <p><b>Project 2 : Build Shiny app dashboard to display range of plots and apply Monte Carlo simulation models for Pharma Process Dataset</b></p>
 <li><a href="https://github.com/bjmcnamee/R_ETL_MTU_Assignments/blob/main/2/STAT8010%20Assignment%202_2020%20(HDip).pdf">Project Specification</a></li>
