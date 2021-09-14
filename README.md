@@ -15,7 +15,7 @@
 <li><a href="https://github.com/bjmcnamee/R_ETL_MTU_Assignments/blob/main/2/Bernard_McNamee_R00207204_Shiny.R">Project Code</a></li>
 <li><a href="https://github.com/bjmcnamee/R_ETL_MTU_Assignments/blob/main/2/Bernard_McNamee_R00207204_Report%20.rmd">Report in R Markdown Code</a></li>
 <br>
-#### Summary
+<b>Summary</b>
 <li>Build Shiny app dashboard to display range of plots for any combination of variables of the Pharma Process Dataset</li>
 <li>Fit LR to plot</li>
 <li>Apply two Monte Carlo simulation models to predict variable tconc for variable year 2015</li>
